@@ -19,8 +19,9 @@ def scrape_hsnct_data() -> pd.DataFrame:
     ]
     result = pd.DataFrame()
     for i, (number, team) in enumerate(number_team):
-        try:
+        if i % 10 == 0:
             print(i)
+        try:
             tmp = pd.read_html(
                 "https://www.naqt.com/stats/tournament/team.jsp?team_id=" + number
             )[2]

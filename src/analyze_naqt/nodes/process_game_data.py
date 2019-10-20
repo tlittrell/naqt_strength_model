@@ -8,7 +8,6 @@ def process_game_data(df: pd.DataFrame) -> pd.DataFrame:
     result = pipe(
         df,
         rename_features,
-        convert_types,
         remove_forfeits,
         add_features,
         drop_features,
@@ -55,7 +54,7 @@ def convert_types(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def remove_forfeits(df: pd.DataFrame) -> pd.DataFrame:
-    return df.query("Score != 'Forfeit'")
+    return df.query("score != 'Forfeit'")
 
 
 def add_features(df: pd.DataFrame) -> pd.DataFrame:
@@ -72,7 +71,7 @@ def add_features(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def drop_features(df: pd.DataFrame) -> pd.DataFrame:
-    result = df.drop(["Result"], axis=1)
+    result = df.drop(["result"], axis=1)
     return result
 
 
@@ -105,5 +104,5 @@ def create_team_indices(df: pd.DataFrame) -> pd.DataFrame:
 def remove_duplicate_games(df: pd.DataFrame) -> pd.DataFrame:
     # Find and remove duplicate games
     df["teams"] = [tuple(sorted(x)) for x in zip(df["team_1"], df["team_2"])]
-    df = df.drop_duplicates(["Round", "teams"]).drop(["teams"], axis=1)
+    df = df.drop_duplicates(["round", "teams"]).drop(["teams"], axis=1)
     return df

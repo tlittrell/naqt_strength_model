@@ -29,6 +29,7 @@
 
 from kedro.pipeline import Pipeline, node
 from analyze_naqt.nodes.scrape import scrape_hsnct_data
+from analyze_naqt.nodes.process_game_data import process_game_data
 
 
 # Here you can define your data-driven pipeline by importing your functions
@@ -69,6 +70,11 @@ def scrape_data_pipeline() -> Pipeline:
         node(func=scrape_hsnct_data,
              inputs=None,
              outputs="raw_2018_all_games",
-             name="Scape 2018 game data")
+             name="Scape 2018 game data"),
+        node(func=process_game_data,
+             inputs="raw_2018_all_games",
+             outputs="2018_all_games",
+             name="process game data")
+
     ])
     return pipeline

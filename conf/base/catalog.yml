@@ -9,4 +9,8 @@
   
 raw_2018_all_games:
   type: ParquetLocalDataSet
-  filepath: data/01_raw/all_games.parquet
+  filepath: data/01_raw/raw_2018_all_games.parquet
+
+2018_all_games:
+  type: ParquetLocalDataSet
+  filepath: data/03_primary/2018_all_games.parquet
