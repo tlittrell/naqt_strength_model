@@ -69,7 +69,7 @@ def get_config(project_path: str, env: str = None, **kwargs) -> ConfigLoader:
     """Loads Kedro's configuration at the root of the project.
 
     Args:
-        project_path: The root directory of the Kedro project.
+        project_path: The root directory of the Kkedredro project.
         env: The environment used for loading configuration.
         kwargs: Ignore any additional arguments added in the future.
 
