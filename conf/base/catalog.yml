@@ -1,0 +1,12 @@
+# Here you can define all your data sets by using simple YAML syntax.
+#
+# Documentation for this file format can be found in the kedro docs under `Accessing data`
+# You can access the kedro docs by running `kedro docs`
+
+2018_HSNCT_overall:
+  type: ExcelLocalDataSet
+  filepath: data/01_raw/2018_HSNCT_overall.xlsx
+  
+2018_all_games:
+  type: CSVLocalDataSet
+  filepath: data/03_primary/all_games.csv
