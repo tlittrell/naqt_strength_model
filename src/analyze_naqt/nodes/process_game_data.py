@@ -12,31 +12,10 @@ def process_game_data(df: pd.DataFrame) -> pd.DataFrame:
         remove_forfeits,
         add_features,
         drop_features,
+        clean_team_names,
+        create_team_indices,
+        remove_duplicate_games,
     )
-    # Add a unique numeric index for each team
-    team_indices = (
-        pd.DataFrame(
-            list(set(result["team_1"].unique()) | set(result["team_2"].unique()))
-        )
-        .reset_index()
-        .rename({0: "team"}, axis=1)
-        .set_index("team")
-        .to_dict()["index"]
-    )
-    result["team_1_index"] = result["team_1"].map(team_indices)
-    result["team_2_index"] = result["team_2"].map(team_indices)
-
-    assert result[result["team_1_index"].isna()].empty
-    assert result[result["team_2_index"].isna()].empty
-
-    # Find and remove duplicate games
-    result["teams"] = [
-        tuple(sorted(x)) for x in zip(result["team_1"], result["team_2"])
-    ]
-    result = result.drop_duplicates(["Round", "teams"]).drop(["teams"], axis=1)
-
-    print(result.shape)
-    result.columns = result.columns.str.lower()
 
     return result
 
@@ -56,7 +35,9 @@ def rename_features(df: pd.DataFrame) -> pd.DataFrame:
         "team": "team_1",
         "Opponent": "team_2",
     }
-    return df.rename(rename_dict, axis=1)
+    result = df.rename(rename_dict, axis=1)
+    result.columns = result.columns.str.lower()
+    return result
 
 
 def convert_types(df: pd.DataFrame) -> pd.DataFrame:
@@ -93,3 +74,36 @@ def add_features(df: pd.DataFrame) -> pd.DataFrame:
 def drop_features(df: pd.DataFrame) -> pd.DataFrame:
     result = df.drop(["Result"], axis=1)
     return result
+
+
+def clean_team_names(df: pd.DataFrame) -> pd.DataFrame:
+    def clean_ampersand(x):
+        return x.replace("&amp;", "&")
+
+    df["team_1"] = df["team_1"].apply(clean_ampersand)
+    df["team_2"] = df["team_2"].apply(clean_ampersand)
+    return df
+
+
+def create_team_indices(df: pd.DataFrame) -> pd.DataFrame:
+    # Add a unique numeric index for each team
+    team_indices = (
+        pd.DataFrame(list(set(df["team_1"].unique()) | set(df["team_2"].unique())))
+        .reset_index()
+        .rename({0: "team"}, axis=1)
+        .set_index("team")
+        .to_dict()["index"]
+    )
+    df["team_1_index"] = df["team_1"].map(team_indices)
+    df["team_2_index"] = df["team_2"].map(team_indices)
+
+    assert df[df["team_1_index"].isna()].empty
+    assert df[df["team_2_index"].isna()].empty
+    return df
+
+
+def remove_duplicate_games(df: pd.DataFrame) -> pd.DataFrame:
+    # Find and remove duplicate games
+    df["teams"] = [tuple(sorted(x)) for x in zip(df["team_1"], df["team_2"])]
+    df = df.drop_duplicates(["Round", "teams"]).drop(["teams"], axis=1)
+    return df
