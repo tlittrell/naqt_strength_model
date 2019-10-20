@@ -27,7 +27,9 @@
 # limitations under the License.
 """Pipeline construction."""
 
-from kedro.pipeline import Pipeline
+from kedro.pipeline import Pipeline, node
+from analyze_naqt.nodes.scrape import scrape_hsnct_data
+
 
 # Here you can define your data-driven pipeline by importing your functions
 # and adding them to the pipeline as follows:
@@ -59,4 +61,14 @@ def create_pipeline(**kwargs):
 
     pipeline = Pipeline([])
 
+    return pipeline
+
+def scrape_data_pipeline() -> Pipeline:
+
+    pipeline = Pipeline([
+        node(func=scrape_hsnct_data,
+             inputs=None,
+             outputs="raw_2018_all_games",
+             name="Scape 2018 game data")
+    ])
     return pipeline
