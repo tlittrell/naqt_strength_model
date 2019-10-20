@@ -1,10 +1,18 @@
 import numpy as np
 import pandas as pd
+from toolz.functoolz import pipe
 
 
 def process_game_data(df: pd.DataFrame) -> pd.DataFrame:
 
-    result = rename_convert_and_add_basic_variables(df)
+    result = pipe(
+        df,
+        rename_features,
+        convert_types,
+        remove_forfeits,
+        add_features,
+        drop_features,
+    )
     # Add a unique numeric index for each team
     team_indices = (
         pd.DataFrame(
@@ -33,7 +41,7 @@ def process_game_data(df: pd.DataFrame) -> pd.DataFrame:
     return result
 
 
-def rename_convert_and_add_basic_variables(df: pd.DataFrame) -> pd.DataFrame:
+def rename_features(df: pd.DataFrame) -> pd.DataFrame:
     rename_dict = {
         "P": "team_1_powers",
         "TU": "team_1_tens",
@@ -48,6 +56,10 @@ def rename_convert_and_add_basic_variables(df: pd.DataFrame) -> pd.DataFrame:
         "team": "team_1",
         "Opponent": "team_2",
     }
+    return df.rename(rename_dict, axis=1)
+
+
+def convert_types(df: pd.DataFrame) -> pd.DataFrame:
     type_dict = {
         "team_1_powers": np.uint8,
         "team_1_tens": np.uint8,
@@ -58,20 +70,26 @@ def rename_convert_and_add_basic_variables(df: pd.DataFrame) -> pd.DataFrame:
         "team_2_negs": np.uint8,
         "team_2_bonus_points": np.uint16,
     }
+    return df.astype(type_dict)
+
+
+def remove_forfeits(df: pd.DataFrame) -> pd.DataFrame:
+    return df.query("Score != 'Forfeit'")
+
+
+def add_features(df: pd.DataFrame) -> pd.DataFrame:
     result = (
-        df.rename(rename_dict, axis=1)
-        .astype(type_dict)
-        .query("Score != 'Forfeit'")
-        .eval(
+        df.eval(
             "team_1_score = team_1_powers * 15 + team_1_tens * 10 - team_1_negs * 5 + team_1_bonus_points"
         )
         .eval(
             "team_2_score = team_2_powers * 15 + team_2_tens * 10 - team_2_negs * 5 + team_2_bonus_points"
         )
         .eval("point_diff = team_1_score - team_2_score")
-        .drop(["Result"], axis=1)
     )
-    result["point_diff_normalized"] = (
-        result["point_diff"] - result["point_diff"].mean()
-    ) / result["point_diff"].std()
+    return result
+
+
+def drop_features(df: pd.DataFrame) -> pd.DataFrame:
+    result = df.drop(["Result"], axis=1)
     return result

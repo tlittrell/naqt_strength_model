@@ -7,6 +7,6 @@
   type: ExcelLocalDataSet
   filepath: data/01_raw/2018_HSNCT_overall.xlsx
   
-2018_all_games:
-  type: CSVLocalDataSet
-  filepath: data/03_primary/all_games.csv
+raw_2018_all_games:
+  type: ParquetLocalDataSet
+  filepath: data/01_raw/all_games.parquet
